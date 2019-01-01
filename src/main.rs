@@ -1,8 +1,9 @@
 #![allow(clippy::new_ret_no_self)]
 
+mod github;
 mod travis;
 
-use crate::travis::TravisCI;
+use crate::{github::GitHub, travis::TravisCI};
 use failure::Error;
 use log::{error, info};
 use std::time::Duration;
@@ -34,7 +35,24 @@ enum CLI {
     },
 }
 
-fn migrate(travis_org: &TravisCI, travis_com: &TravisCI, repo: &str) -> Result<(), Error> {
+fn migrate_protection_contexts(contexts: &[String]) -> Vec<&str> {
+    contexts
+        .iter()
+        .map(|ctx| match ctx.as_str() {
+            "continuos-integration/travis-ci" => "Travis CI - Branch",
+            "continuos-integration/travis-ci/push" => "Travis CI - Branch",
+            "continuos-integration/travis-ci/pr" => "Travis CI - Pull Request",
+            other => other,
+        })
+        .collect()
+}
+
+fn migrate(
+    travis_org: &TravisCI,
+    travis_com: &TravisCI,
+    github: &GitHub,
+    repo: &str,
+) -> Result<(), Error> {
     let crons = travis_org.list_crons(repo)?;
     info!("{}: found {} cron(s) to migrate", repo, crons.len());
 
@@ -51,11 +69,25 @@ fn migrate(travis_org: &TravisCI, travis_com: &TravisCI, repo: &str) -> Result<(
         }
         info!("{}: restored {} cron(s)", repo, crons.len());
     }
+
+    for branch in github.protected_branches(repo)?.into_iter() {
+        let contexts = branch.protection.required_status_checks.contexts;
+        let new_contexts = migrate_protection_contexts(&contexts);
+        if contexts != new_contexts {
+            github.set_required_status_checks(repo, &branch.name, &new_contexts)?;
+            info!(
+                "{}: updated required status checks for branch `{}`",
+                repo, branch.name
+            );
+        }
+    }
+
     Ok(())
 }
 
 fn app() -> Result<(), Error> {
     let args = CLI::from_args();
+
     match args {
         CLI::List { account } => {
             let travis_com = TravisCI::new("com", std::env::var("TRAVIS_TOKEN_COM").ok())?;
@@ -72,18 +104,20 @@ fn app() -> Result<(), Error> {
         CLI::MigrateRepo { slug } => {
             let travis_org = TravisCI::new("org", std::env::var("TRAVIS_TOKEN_ORG").ok())?;
             let travis_com = TravisCI::new("com", std::env::var("TRAVIS_TOKEN_COM").ok())?;
-            migrate(&travis_org, &travis_com, &slug)?;
+            let github = GitHub::new(std::env::var("GITHUB_TOKEN")?);
+            migrate(&travis_org, &travis_com, &github, &slug)?;
         }
         CLI::MigrateAccount { account } => {
             let travis_org = TravisCI::new("org", std::env::var("TRAVIS_TOKEN_ORG").ok())?;
             let travis_com = TravisCI::new("com", std::env::var("TRAVIS_TOKEN_COM").ok())?;
+            let github = GitHub::new(std::env::var("GITHUB_TOKEN")?);
             let repos = travis_com.repos_to_migrate(&account)?;
             if repos.is_empty() {
                 info!("no repos to migrate found");
             } else {
                 info!("{} repo(s) to migrate", repos.len());
                 for repo in &repos {
-                    migrate(&travis_org, &travis_com, &repo.slug)?;
+                    migrate(&travis_org, &travis_com, &github, &repo.slug)?;
                 }
             }
         }
