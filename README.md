@@ -1,32 +1,48 @@
 # travis-ci.org to travis-ci.com migrator
 
-This repository contains a tool that can be used to migrate a repository or an
-entire organization from travis-ci.org to travis-ci.com. Note that **your
-Travis CI account needs to have the migration feature enabled in order to use
-this tool**. Please ask Travis CI support for that. The tool tries to migrate
-as much data and settings as possible. In addition to [the data migrated by
-Travis itself][data-migrated], it will also migrate:
+<p align="center"><b>:warning::warning: &nbsp;
+It's not possible to migrate repositories back to travis-ci.org
+&nbsp; :warning::warning:</b></p>
 
-* All the cron jobs configured in the repository
+`travis-migrate` is a tool that automatically migrates repositories or whole
+accounts/organizations from [travis-ci.org][org] to [travis-ci.com][com], while
+trying to preserve as much data and settings as possible. It was built by the
+Rust Infrastructure team to migrate all the repositories in our organizations.
+
+In addition to the [data migrated by Travis itself][data-migrated], the tool:
+
+* Migrates all the cron jobs configured in the repository
+* Migrates the required status checks in the repository's protected branches
+
+> When the tool was written the Migration API was limited to beta testers. If
+> you can't access it you need to contact Travis Support and ask them to enable
+> it on the users/organizations you want to migrate.
 
 You need Rust 1.31.0 or greater in order to use this tool. Made by [Pietro
 Albini](https://www.pietroalbini.org) and released under the MIT license.
 
 [data-migrated]: https://docs.travis-ci.com/user/open-source-repository-migration/#what-information-will-be-transferred-to-travis-cicom
+[org]: https://travis-ci.org
+[com]: https://travis-ci.com
 
-## Travis authentication tokens
+## API authentication keys
 
-The tool needs your API keys for both `travis-ci.org` and `travis-ci.com`. If
-you have the [Travis CLI](https://github.com/travis-ci/travis.rb) installed and
-you're logged into it the tool will fetch the tokens automatically. Otherwise
-you can provide them with the environment variables:
+The tool needs the following API keys:
 
-* `TRAVIS_TOKEN_ORG` for `travis-ci.org`
-* `TRAVIS_TOKEN_COM` for `travis-ci.com`
+* `GITHUB_TOKEN`: a personal access token of a GitHub account that has **full
+  admin access** to all the repositories
+* `TRAVIS_TOKEN_ORG`: the `travis-ci.org` API key of the account you want to
+  use to perform the migration
+* `TRAVIS_TOKEN_COM`: the `travis-ci.com` API key of the account you want to
+  use to perform the migration
+
+If you have the [Travis CLI][travis-cli] installed you can omit the Travis
+environment variables, since the tool will call the CLI to fetch the tokens
+automatically.
+
+[travis-cli]: https://github.com/travis-ci/travis.rb
 
 ## Usage
-
-**REMEMBER IT'S NOT POSSIBLE TO MIGRATE A REPOSITORY BACK TO TRAVIS-CI.ORG!!!**
 
 You can list all the repositories that can be migrated in an
 account/organization with:
