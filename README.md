@@ -1,4 +1,4 @@
-# travis-ci.org to travis-ci.com migrator
+<h1 align="center">travis-ci.org to travis-ci.com migrator</h1>
 
 <p align="center"><b>:warning::warning: &nbsp;
 It's not possible to migrate repositories back to travis-ci.org
@@ -9,17 +9,18 @@ accounts/organizations from [travis-ci.org][org] to [travis-ci.com][com], while
 trying to preserve as much data and settings as possible. It was built by the
 Rust Infrastructure team to migrate all the repositories in our organizations.
 
-In addition to the [data migrated by Travis itself][data-migrated], the tool:
+In addition to the [migration steps performed by Travis itself][data-migrated],
+the tool:
 
 * Migrates all the cron jobs configured in the repository
 * Migrates the required status checks in the repository's protected branches
 
+You need Rust 1.31.0 or greater in order to use this tool. Made by [Pietro
+Albini](https://www.pietroalbini.org) and released under the MIT license.
+
 > When the tool was written the Migration API was limited to beta testers. If
 > you can't access it you need to contact Travis Support and ask them to enable
 > it on the users/organizations you want to migrate.
-
-You need Rust 1.31.0 or greater in order to use this tool. Made by [Pietro
-Albini](https://www.pietroalbini.org) and released under the MIT license.
 
 [data-migrated]: https://docs.travis-ci.com/user/open-source-repository-migration/#what-information-will-be-transferred-to-travis-cicom
 [org]: https://travis-ci.org
