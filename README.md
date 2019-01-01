@@ -4,13 +4,15 @@ This repository contains a tool that can be used to migrate a repository or an
 entire organization from travis-ci.org to travis-ci.com. Note that **your
 Travis CI account needs to have the migration feature enabled in order to use
 this tool**. Please ask Travis CI support for that. The tool tries to migrate
-as much data and settings as possible. In addition to the data migrated by
-Travis itself, it will also migrate:
+as much data and settings as possible. In addition to [the data migrated by
+Travis itself][data-migrated], it will also migrate:
 
 * All the cron jobs configured in the repository
 
 You need Rust 1.31.0 or greater in order to use this tool. Made by [Pietro
 Albini](https://www.pietroalbini.org) and released under the MIT license.
+
+[data-migrated]: https://docs.travis-ci.com/user/open-source-repository-migration/#what-information-will-be-transferred-to-travis-cicom
 
 ## Travis authentication tokens
 
