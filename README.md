@@ -39,7 +39,9 @@ The tool needs the following API keys:
 
 If you have the [Travis CLI][travis-cli] installed you can omit the Travis
 environment variables, since the tool will call the CLI to fetch the tokens
-automatically.
+automatically. Also note not all the subcommands require all the environment
+variables to be present (listing repositories available to migrate only
+requires `TRAVIS_TOKEN_PRO`).
 
 [travis-cli]: https://github.com/travis-ci/travis.rb
 
@@ -63,3 +65,9 @@ You can migrate all the repositories inan account/organization with:
 ```
 $ cargo run migrate-account rust-lang
 ```
+
+Before you migrate you need to have the [Travis CI][travis-app] GitHub app
+installed on your account, and you need to give it access to the repositories
+you want to migrate.
+
+[travis-app]: https://github.com/marketplace/travis-ci
