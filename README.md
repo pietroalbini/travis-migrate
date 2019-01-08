@@ -60,10 +60,17 @@ You can migrate a single repository with:
 $ cargo run migrate-repo rust-lang/rust
 ```
 
-You can migrate all the repositories inan account/organization with:
+You can migrate all the repositories in an account/organization with:
 
 ```
 $ cargo run migrate-account rust-lang
+```
+
+You can also exclude some repositories while migrating a whole
+account/organization:
+
+```
+$ cargo run migrate-account rust-lang --exclude rust-lang/rust --exclude rust-lang/cargo
 ```
 
 Before you migrate you need to have the [Travis CI][travis-app] GitHub app

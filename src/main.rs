@@ -32,6 +32,8 @@ enum CLI {
     MigrateAccount {
         #[structopt(name = "account")]
         account: String,
+        #[structopt(name = "exclude", long = "exclude", multiple = true)]
+        exclude: Vec<String>,
     },
 }
 
@@ -107,7 +109,7 @@ fn app() -> Result<(), Error> {
             let github = GitHub::new(std::env::var("GITHUB_TOKEN")?);
             migrate(&travis_org, &travis_com, &github, &slug)?;
         }
-        CLI::MigrateAccount { account } => {
+        CLI::MigrateAccount { account, exclude } => {
             let travis_org = TravisCI::new("org", std::env::var("TRAVIS_TOKEN_ORG").ok())?;
             let travis_com = TravisCI::new("com", std::env::var("TRAVIS_TOKEN_COM").ok())?;
             let github = GitHub::new(std::env::var("GITHUB_TOKEN")?);
@@ -117,7 +119,11 @@ fn app() -> Result<(), Error> {
             } else {
                 info!("{} repo(s) to migrate", repos.len());
                 for repo in &repos {
-                    migrate(&travis_org, &travis_com, &github, &repo.slug)?;
+                    if exclude.contains(&repo.slug) {
+                        info!("skipping {}", repo.slug);
+                    } else {
+                        migrate(&travis_org, &travis_com, &github, &repo.slug)?;
+                    }
                 }
             }
         }
